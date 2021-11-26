@@ -9,45 +9,75 @@ jobs:
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v1
         with:
-          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           event-type: create-pull-request
-          # client-payload: '{"handle": "${{ github.handle }}", "type": "${{ github.type }}", "handle": "${{ github.title }}", "description": "${{ github.description }}", "targeting": "${{ github.targeting }}", "published_at": "${{ github.published_at }}"}'
-          client-payload: '{"handle": "${{ github.event.client_payload.handle }}"}'
+          client-payload:
+            '{ 
+              "notification": 
+                { 
+                  "key":
+                    { 
+                      "handle": "${{ github.event.client_payload.handle }}", 
+                      "type": "${{ github.event.client_payload.type }}", 
+                      "context_key": "${{ github.event.client_payload.context_key }}", 
+                      "title_key": "${{ github.event.client_payload.title_key }}", 
+                      "description_key": "${{ github.event.client_payload.description_key }}", 
+                      "primary_cta_label_key": "${{ github.event.client_payload.primary_cta_label_key }}", 
+                      "primary_cta_url": "${{ github.event.client_payload.primary_cta_url }}", 
+                      "secondary_cta_label_key": "${{ github.event.client_payload.secondary_cta_label_key }}", 
+                      "secondary_cta_url": "${{ github.event.client_payload.secondary_cta_url }}", 
+                      "targeting": "${{ github.event.client_payload.targeting }}", 
+                      "published_at": "${{ github.event.client_payload.published_at }}", 
+                      "expires_at": "${{ github.event.client_payload.expires_at }}", 
+                      "deleted": "${{ github.event.client_payload.deleted }}", 
+                      "roles": "${{ github.event.client_payload.roles }}", 
+                      "permissions": "${{ github.event.client_payload.permissions }}" 
+                    },
+                  "value":
+                    {
+                      "context_val": "${{ github.event.client_payload.context_val }}", 
+                      "title_val": "${{ github.event.client_payload.title_val }}", 
+                      "description_val": "${{ github.event.client_payload.description_val }}", 
+                      "primary_cta_label_val": "${{ github.event.client_payload.primary_cta_label_val }}", 
+                      "secondary_cta_label_val": "${{ github.event.client_payload.secondary_cta_label_val }}"
+                    }
+                }
+            }'
       - uses: actions/checkout@v2
       - name: Create notification
         env:
-          HANDLE_VAR: ${{ github.event.client_payload.handle }}
-          TYPE_VAR: ${{ github.event.client_payload.type }}
-          TITLE_VAR: ${{ github.event.client_payload.title }}
-          DESCRIPTION_VAR: ${{ github.event.client_payload.description }}
-          TARGETING_VAR: ${{ github.event.client_payload.targeting }}
-          PUBLISHEDAT_VAR: ${{ github.event.client_payload.published_at }}
-        # if: ${{ MY_VAR == undefined }}
-        # run: MY_VAR = 
-        run: |
-          cat >> notifications.yml <<EOL
-          $HANDLE_VAR
-          $TYPE_VAR
-          $TITLE_VAR
-          $DESCRIPTION_VAR
-          $TARGETING_VAR
-          $PUBLISHEDAT_VAR
-          EOL
+          HANDLE_VAR: ${{ github.event.client_payload.notification.key.handle }}
+          TYPE_VAR: ${{ github.event.client_payload.notification.key.type }}
+          CONTEXT_KEY_VAR: ${{ github.event.client_payload.notification.key.context_key }}
+          TITLE_KEY_VAR: ${{ github.event.client_payload.notification.key.title_key }}
+          DESCRIPTION_KEY_VAR: ${{ github.event.client_payload.notification.key.description_key }}
+          PRIMARY_CTA_LABEL_KEY_VAR: ${{ github.event.client_payload.notification.key.primary_cta_label_key }}
+          PRIMARY_CTA_URL_VAR: ${{ github.event.client_payload.notification.key.primary_cta_url }}
+          SECONDARY_CTA_LABEL_KEY_VAR: ${{ github.event.client_payload.notification.key.secondary_cta_label_key }}
+          SECONDARY_CTA_URL_VAR: ${{ github.event.client_payload.notification.key.secondary_cta_url }}
+          TARGETING_VAR: ${{ github.event.client_payload.notification.key.targeting }}
+          PUBLISHED_AT_VAR: ${{ github.event.client_payload.notification.key.published_at }}
+          EXPIRES_AT_VAR: ${{ github.event.client_payload.notification.key.expires_at }}
+          DELETED_VAR: ${{ github.event.client_payload.notification.key.deleted }}
+          ROLES_VAR: ${{ github.event.client_payload.notification.key.roles }}
+          PERMISSIONS_VAR: ${{ github.event.client_payload.notification.key.permissions }}
+          CONTEXT_VAL_VAR: ${{ github.event.client_payload.notification.value.context_val }}
+          TITLE_VAL_VAR: ${{ github.event.client_payload.notification.value.title_val }}
+          DESCRIPTION_VAL_VAR: ${{ github.event.client_payload.notification.value.description_val }}
+          PRIMARY_CTA_LABEL_VAL_VAR: ${{ github.event.client_payload.notification.value.primary_cta_label_val }}
+          SECONDARY_CTA_LABEL_VAL_VAR: ${{ github.event.client_payload.notification.value.secondary_cta_label_val }}
+        run: ruby bin/notification.rb
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: Add notification
           body: |
-            New report
-            - Adds notifications detail to yml file
-
-          title: 'Add notification'
+            New Notification
+            - Adds notifications detail to notification.rb
+            - Populates translation File
+          delete-branch: true
+          title: "Add ${{ github.event.client_payload.notification.value.title_val }} notification"
           labels: automated pr
-          assignees: Bardia-N
-          branch: gh/notification
-
-# curl -X POST \
-#     -H "Accept: application/vnd.github.v3+json" \
-#     -H "Authorization: token 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" \
-#     https://api.github.com/repos/Bardia-N/ghactions/dispatches --data '{"event_type": "create-pull-request", "client_payload": { "handle": "my_handle" }}'
+          assignees: Shopify/partner-platform
+          branch: ghactions/notification
