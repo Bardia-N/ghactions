@@ -12,7 +12,7 @@ jobs:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
           event-type: create-pull-request
           # client-payload: '{"handle": "${{ github.handle }}", "type": "${{ github.type }}", "handle": "${{ github.title }}", "description": "${{ github.description }}", "targeting": "${{ github.targeting }}", "published_at": "${{ github.published_at }}"}'
-          client-payload: '{"handle": "${{ handle }}"}'
+          client-payload: '{"handle": "${{ github.event.client_payload.handle }}"}'
       - uses: actions/checkout@v2
       - name: Create notification
         env:
@@ -49,5 +49,5 @@ jobs:
 
 # curl -X POST \
 #     -H "Accept: application/vnd.github.v3+json" \
-#     -H "Authorization: token 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" \
+#     -H "Authorization: token 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" \
 #     https://api.github.com/repos/Bardia-N/ghactions/dispatches --data '{"event_type": "create-pull-request", "client_payload": { "handle": "my_handle" }}'
