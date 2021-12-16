@@ -1,0 +1,7 @@
+en:
+  db:
+    data:
+      notifications:
+        my_handle:
+          context: my_context_value
+          title: my_title_value

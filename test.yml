@@ -1,0 +1,10 @@
+---
+- handle: my_handle
+  context_key: my_context
+  title_key: my_title
+  roles:
+  - role1
+  - role2
+  permissions:
+  - permission1
+  - permission2
